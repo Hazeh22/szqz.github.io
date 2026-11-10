@@ -1,116 +1,68 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>商品展示</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #222; padding: 24px; }
-  h1 { font-size: 22px; margin-bottom: 16px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-  .filters select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; font-size: 14px; }
-  .count { font-size: 13px; color: #666; margin-bottom: 12px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); display: flex; flex-direction: column; }
-  .card img { width: 100%; height: 160px; object-fit: cover; background: #eee; }
-  .card .info { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-  .card .name { font-weight: 600; font-size: 15px; }
-  .card .meta { font-size: 13px; color: #666; }
-  .card .addr { font-size: 12px; color: #888; line-height: 1.4; }
-  .empty { padding: 40px; text-align: center; color: #999; }
-</style>
-</head>
-<body>
+# 货盘展示网站（szqz.github.io）
 
-<h1>商品展示</h1>
+跨境货盘批次目录，客户可按「国家/仓」和「品类」筛选，点进批次看详情、咨询。
 
-<div class="filters">
-  <select id="filterCountry"><option value="">全部国家</option></select>
-  <select id="filterCategory"><option value="">全部品类</option></select>
-</div>
+> 纯展示，不交易不下单。
 
-<div class="count" id="count"></div>
-<div class="grid" id="grid"></div>
+## 功能
 
-<script>
-// ===== 这里改成你自己的商品数据 =====
-const products = [
-  {
-    name: "示例商品 A",
-    image: "https://picsum.photos/seed/a/400/300",
-    quantity: 120,
-    address: "中国 · 深圳 · 南山区科技园",
-    country: "中国",
-    category: "电子产品"
-  },
-  {
-    name: "示例商品 B",
-    image: "https://picsum.photos/seed/b/400/300",
-    quantity: 45,
-    address: "美国 · 加州 · 旧金山",
-    country: "美国",
-    category: "家居用品"
-  },
-  {
-    name: "示例商品 C",
-    image: "https://picsum.photos/seed/c/400/300",
-    quantity: 8,
-    address: "日本 · 东京 · 涩谷区",
-    country: "日本",
-    category: "电子产品"
-  },
-  {
-    name: "示例商品 D",
-    image: "https://picsum.photos/seed/d/400/300",
-    quantity: 300,
-    address: "德国 · 柏林 · 米特区",
-    country: "德国",
-    category: "服装"
-  }
-];
-// ====================================
+- 批次卡片列表（封面 / 批次号 / 国家 / 品类 / 件数）
+- 国家筛选：美国 · 英国 · 德国 · 法国
+- 品类筛选：服装 · 家具 · 家居 · 日用 · 装饰 · 配件
+- 两个维度可单独选，也可叠加（如「美国 + 服装」）
+- 批次详情页（多图 / 描述 / 复制微信咨询）
+- 移动端优先，微信里可直接打开
 
-const grid = document.getElementById("grid");
-const countEl = document.getElementById("count");
-const countrySel = document.getElementById("filterCountry");
-const categorySel = document.getElementById("filterCategory");
+## 目录结构
 
-// 生成筛选项
-const countries = [...new Set(products.map(p => p.country))];
-const categories = [...new Set(products.map(p => p.category))];
-countries.forEach(c => countrySel.insertAdjacentHTML("beforeend", `<option value="${c}">${c}</option>`));
-categories.forEach(c => categorySel.insertAdjacentHTML("beforeend", `<option value="${c}">${c}</option>`));
+szqz.github.io/
+├── index.html # 列表 + 筛选（首页）
+├── detail.html # 批次详情页
+├── config.js # 数据源地址（如有）
+└── README.md
 
-function render() {
-  const fc = countrySel.value;
-  const fg = categorySel.value;
-  const list = products.filter(p => (!fc || p.country === fc) && (!fg || p.category === fg));
+## 本地预览
 
-  countEl.textContent = `共 ${list.length} 件商品`;
+1. 下载仓库：`git clone https://github.com/Hazeh22/szqz.github.io.git`
+2. 进入文件夹，双击 `index.html` 用浏览器打开
+3. 按 F12 打开控制台，确认无报错、筛选正常
 
-  if (!list.length) {
-    grid.innerHTML = '<div class="empty">没有符合条件的商品</div>';
-    return;
-  }
+## 部署（GitHub Pages）
 
-  grid.innerHTML = list.map(p => `
-    <div class="card">
-      <img src="${p.image}" alt="${p.name}" loading="lazy">
-      <div class="info">
-        <div class="name">${p.name}</div>
-        <div class="meta">数量：${p.quantity}</div>
-        <div class="meta">品类：${p.category}</div>
-        <div class="addr">地址：${p.address}</div>
-      </div>
-    </div>
-  `).join("");
-}
+1. 把 `index.html.txt` 重命名为 `index.html`
+2. 推送到本仓库 `main` 分支
+3. 仓库 Settings → Pages → Source 选 `main` 分支 / 根目录
+4. 访问 https://hazeh22.github.io/szqz.github.io/ 查看
+5. 改完代码推送到 main 分支，GitHub Pages 会自动重新部署（约 1 分钟）
 
-countrySel.addEventListener("change", render);
-categorySel.addEventListener("change", render);
-render();
-</script>
+## 数据源
 
-</body>
-</html>
+批次数据存在 `config.js`（或后续接 Supabase / 凡科）。
+字段示例：
+
+batchNo: "US-2026-001",
+country: "美国",
+warehouse: "洛杉矶仓",
+categories: ["服装", "家居"],
+totalQty: 1200,
+cover: "图片地址",
+images: ["图1", "图2"],
+desc: "整批清货，混装，服装占比60%",
+status: "在售"
+
+## 筛选逻辑
+
+- 只选国家：列出该国所有批次
+- 只选品类：跨国家列出该品类
+- 国家 + 品类叠加：取交集
+
+## 注意事项
+
+- 文件名必须是 `index.html`，不能是 `.txt`
+- 访问走 HTTPS，HTTP 会被浏览器拦截
+- 图片建议压到 200KB 以内，加载更快
+- 国内微信打开 GitHub Pages 偶有慢，正式发客户建议套 Cloudflare 或迁国内托管
+
+## 更新记录
+
+- 2026-11-10 初始化：列表页 + 国家/品类筛选 + 详情页 + 咨询按钮
