@@ -180,5 +180,3 @@ function renderLangBtn(btn) {
   btn.textContent = getLang() === "zh" ? "EN" : "中文";
   btn.onclick = () => { setLang(getLang() === "zh" ? "en" : "zh"); location.reload(); };
 }
-  btn.onclick = () => { setLang(getLang() === "zh" ? "en" : "zh"); location.reload(); };
-}
