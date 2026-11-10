@@ -5,44 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>产品列表</title>
 <style>
-  :root { --brand:#ff5a1f; --brand2:#ffb020; --ink:#111827; --muted:#6b7280; --bg:#fbfaf8; --shadow:0 6px 24px rgba(17,24,39,.06); }
+  :root {
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --accent-soft: #f1f5f9;
+    --radius: 16px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+  body { font-family: -apple-system, "Segoe UI", "Inter", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { text-decoration: none; color: inherit; }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-  header { position: sticky; top: 0; z-index: 50; background: rgba(251,250,248,.88); backdrop-filter: blur(12px); border-bottom: 1px solid #f0ece6; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  header { position: sticky; top: 0; z-index: 50; background: rgba(248,250,252,.8); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
   .header-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-  .back { font-size: 14px; color: var(--brand); font-weight: 700; }
-  .lang-btn { border: 1px solid #f0e2d8; background:#fff; color: var(--brand); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .back { font-size: 14px; color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; transition: background .15s; }
+  .back:hover { background: var(--accent-soft); }
+  .lang-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .lang-btn:hover { background: var(--accent-soft); }
 
-  .page-head { padding: 34px 0 10px; }
-  .page-head h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 900; letter-spacing: -.5px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 20px 0 8px; }
-  .chip { border: 1px solid #f0e2d8; background: #fff; color: #6b4a3a; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
-  .chip:hover { border-color: #ffd2bd; color: var(--brand); }
-  .chip.active { background: linear-gradient(135deg,#ff5a1f,#ffb020); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(255,90,31,.25); }
-  .count { color: var(--muted); font-size: 13px; margin: 12px 0 20px; }
+  .page-head { padding: 48px 0 8px; }
+  .page-head h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+  .page-head .desc { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; }
+  .chip { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .chip:hover { border-color: #cbd5e1; color: var(--ink); }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .count { color: var(--muted); font-size: 13px; margin: 12px 0 24px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; padding-bottom: 50px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; padding-bottom: 56px; }
   @media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
-  .card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid #f2ece5; cursor: pointer; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
-  .card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(17,24,39,.1); }
-  .card img { width: 100%; height: 170px; object-fit: cover; display: block; background: #f3f4f6; }
-  @media (max-width: 560px) { .card img { height: 130px; } }
+  .card { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; transition: all .18s; }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: #cbd5e1; }
+  .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: #f1f5f9; }
   .card .body { padding: 14px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-  .card .name { font-size: 14px; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .card .price { color: var(--brand); font-weight: 800; font-size: 18px; }
+  .card .name { font-size: 14px; font-weight: 600; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; letter-spacing: -.01em; }
+  .card .price { color: var(--ink); font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
   .card .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .card .state { background: #fff1ea; color: #b8430f; border-radius: 6px; padding: 1px 7px; font-weight: 700; font-size: 11px; }
-  .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 60px 0; }
+  .card .state { background: var(--accent-soft); color: var(--ink); border-radius: 6px; padding: 1px 7px; font-weight: 600; font-size: 11px; }
+  .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 80px 0; }
 
-  .float-contact { position: fixed; right: 18px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  .float-contact { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
   .float-contact .items { display: none; flex-direction: column; gap: 10px; }
   .float-contact.open .items { display: flex; }
-  .float-contact a, .float-contact button { display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #fff; border-radius: 999px; padding: 11px 16px; font-size: 13px; font-weight: 700; box-shadow: 0 8px 24px rgba(17,24,39,.16); color: var(--ink); }
-  .float-contact .wx { background: #07c160; color: #fff; }
-  .float-contact .tel { background: var(--brand); color: #fff; }
-  .float-contact .toggle { width: 52px; height: 52px; justify-content: center; padding: 0; border-radius: 50%; background: linear-gradient(135deg,#ff5a1f,#ffb020); color: #fff; font-size: 22px; box-shadow: 0 10px 26px rgba(255,90,31,.35); }
+  .float-contact a, .float-contact button { display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #fff; border-radius: 12px; padding: 11px 16px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(15,23,42,.12); color: var(--ink); border: 1px solid var(--line); }
+  .float-contact .wx { background: #07c160; color: #fff; border-color: #07c160; }
+  .float-contact .tel { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .float-contact .toggle { width: 52px; height: 52px; justify-content: center; padding: 0; border-radius: 50%; background: var(--ink); color: #fff; font-size: 22px; box-shadow: 0 8px 24px rgba(15,23,42,.3); border: none; }
 </style>
 </head>
 <body>
@@ -57,6 +69,7 @@
 <main class="wrap">
   <div class="page-head">
     <h1 id="pageTitle">产品列表</h1>
+    <p class="desc" id="pageDesc"></p>
     <div class="filters" id="filters"></div>
     <div class="count" id="count"></div>
   </div>
@@ -86,6 +99,7 @@ function applyLang() {
   document.getElementById("fcWechat").textContent = L.wechat;
   document.getElementById("fcPhone").textContent = L.phone;
   document.getElementById("pageTitle").textContent = cat === "all" ? L.navProducts : categoryLabel(cat);
+  document.getElementById("pageDesc").textContent = getLang()==='zh' ? "现货库存，支持筛选与查看详情" : "In-stock items, filter and view details";
   document.title = document.getElementById("pageTitle").textContent;
   renderFilters();
   render();
