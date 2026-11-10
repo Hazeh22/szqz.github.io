@@ -5,129 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>产品列表</title>
 <style>
-  :root { --brand:#ff5a1f; --brand2:#ffb020; --ink:#1f2328; --muted:#6b7280; --bg:#fff8f3; --radius:14px; }
+  :root { --brand:#ff5a1f; --brand2:#ffb020; --ink:#111827; --muted:#6b7280; --bg:#fbfaf8; --shadow:0 6px 24px rgba(17,24,39,.06); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
   a { text-decoration: none; color: inherit; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
-  header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.94); border-bottom: 1px solid #ffe3d3; }
-  .header-in { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 10px; }
-  .back { font-size: 14px; color: var(--brand); font-weight: 600; }
-  .header-right { display: flex; gap: 8px; align-items: center; }
-  .lang-btn { border: 1px solid #ffd2bd; background:#fff; color: var(--brand); padding: 6px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  header { position: sticky; top: 0; z-index: 50; background: rgba(251,250,248,.88); backdrop-filter: blur(12px); border-bottom: 1px solid #f0ece6; }
+  .header-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .back { font-size: 14px; color: var(--brand); font-weight: 700; }
+  .lang-btn { border: 1px solid #f0e2d8; background:#fff; color: var(--brand); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-  .page-head { padding: 24px 0 8px; }
-  .page-head h1 { font-size: clamp(22px, 4vw, 30px); font-weight: 800; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
-  .chip { border: 1px solid #ffd2bd; background: #fff; color: #7a3a1a; border-radius: 999px; padding: 7px 15px; font-size: 13px; cursor: pointer; transition: all .15s; }
-  .chip.active { background: linear-gradient(135deg,#ff5a1f,#ffb020); border-color: transparent; color: #fff; font-weight: 700; }
-  .count { color: var(--muted); font-size: 13px; margin: 10px 0 16px; }
+  .page-head { padding: 34px 0 10px; }
+  .page-head h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 900; letter-spacing: -.5px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 20px 0 8px; }
+  .chip { border: 1px solid #f0e2d8; background: #fff; color: #6b4a3a; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .chip:hover { border-color: #ffd2bd; color: var(--brand); }
+  .chip.active { background: linear-gradient(135deg,#ff5a1f,#ffb020); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(255,90,31,.25); }
+  .count { color: var(--muted); font-size: 13px; margin: 12px 0 20px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; padding-bottom: 40px; }
-  @media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-  .card { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 10px rgba(255,90,31,.08); cursor: pointer; display: flex; flex-direction: column; transition: transform .15s; }
-  .card:hover { transform: translateY(-3px); }
-  .card img { width: 100%; height: 160px; object-fit: cover; display: block; background: #f3f4f6; }
-  @media (max-width: 560px) { .card img { height: 120px; } }
-  .card .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-  .card .name { font-size: 14px; font-weight: 600; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .card .price { color: var(--brand); font-weight: 800; font-size: 16px; }
-  .card .meta { font-size: 12px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; padding-bottom: 50px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+  .card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid #f2ece5; cursor: pointer; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(17,24,39,.1); }
+  .card img { width: 100%; height: 170px; object-fit: cover; display: block; background: #f3f4f6; }
+  @media (max-width: 560px) { .card img { height: 130px; } }
+  .card .body { padding: 14px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .card .name { font-size: 14px; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card .price { color: var(--brand); font-weight: 800; font-size: 18px; }
+  .card .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .card .state { background: #fff1ea; color: #b8430f; border-radius: 6px; padding: 1px 7px; font-weight: 700; font-size: 11px; }
   .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 60px 0; }
 
-  .float-contact { position: fixed; right: 16px; bottom: 18px; z-index: 90; display: flex; flex-direction: column; gap: 10px; }
-  .float-contact a, .float-contact button { display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #fff; border-radius: 999px; padding: 10px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,.15); color: var(--ink); }
-  .float-contact .wx { background: #07c160; color: #fff; }
-  .float-contact .tel { background: var(--brand); color: #fff; }
-  .float-contact .toggle { width: 48px; height: 48px; justify-content: center; padding: 0; border-radius: 50%; background: linear-gradient(135deg,#ff5a1f,#ffb020); color: #fff; font-size: 20px; }
-  .float-contact .items { display: none; flex-direction: column; gap: 10px; }
-  .float-contact.open .items { display: flex; }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="wrap header-in">
-    <a class="back" href="index.html" id="backBtn">← 返回首页</a>
-    <div class="header-right"><button class="lang-btn" id="langBtn">EN</button></div>
-  </div>
-</header>
-
-<main class="wrap">
-  <div class="page-head">
-    <h1 id="pageTitle">产品列表</h1>
-    <div class="filters" id="filters"></div>
-    <div class="count" id="count"></div>
-  </div>
-  <div class="grid" id="grid"></div>
-</main>
-
-<div class="float-contact" id="floatContact">
-  <div class="items">
-    <a class="wx" href="weixin://">💬 <span id="fcWechat">微信：2222222222</span></a>
-    <a class="tel" href="tel:3333333333">📞 <span id="fcPhone">电话：3333333333</span></a>
-  </div>
-  <button class="toggle" id="fcToggle">💬</button>
-</div>
-
-<script src="data.js"></script>
-<script>
-const cat = getParam("cat") || "all";
-const products = getProducts();
-renderLangBtn(document.getElementById("langBtn"));
-
-const CATS = ["all","usa","fba","canada","germany","uk","other"];
-let active = "all";
-
-function applyLang() {
-  const L = I18N[getLang()];
-  document.getElementById("backBtn").textContent = "← " + L.back;
-  document.getElementById("fcWechat").textContent = L.wechat;
-  document.getElementById("fcPhone").textContent = L.phone;
-  document.getElementById("pageTitle").textContent = cat === "all" ? L.navProducts : categoryLabel(cat);
-  document.title = document.getElementById("pageTitle").textContent;
-  renderFilters();
-  render();
-}
-
-function renderFilters() {
-  const L = I18N[getLang()];
-  const el = document.getElementById("filters");
-  el.innerHTML = CATS.map(c =>
-    `<button class="chip ${active===c?'active':''}" data-c="${c}">${c==='all'?L.all:categoryLabel(c)}</button>`
-  ).join("");
-  el.querySelectorAll(".chip").forEach(b => b.onclick = () => { active = b.dataset.c; renderFilters(); render(); });
-}
-
-function render() {
-  const L = I18N[getLang()];
-  let list = products;
-  if (cat !== "all") list = list.filter(p => p.category === cat);
-  if (active !== "all") list = list.filter(p => p.category === active);
-
-  document.getElementById("count").textContent = list.length + " " + (getLang()==='zh'?'件商品':'products');
-
-  if (!list.length) {
-    document.getElementById("grid").innerHTML = `<div class="empty">${L.noProducts}</div>`;
-    return;
-  }
-  document.getElementById("grid").innerHTML = list.map(p => `
-    <div class="card" onclick="location.href='detail.html?id=${p.id}'">
-      <img src="${p.images[0]}" alt="${getLang()==='zh'?p.name:p.nameEn}" loading="lazy">
-      <div class="body">
-        <div class="name">${getLang()==='zh'?p.name:p.nameEn}</div>
-        <div class="price">${formatPrice(p.price)}</div>
-        <div class="meta">${L.quantity}：${p.quantity}</div>
-      </div>
-    </div>
-  `).join("");
-}
-
-if (CATS.includes(cat)) active = cat;
-applyLang();
-
-const fc = document.getElementById("floatContact");
-document.getElementById("fcToggle").onclick = () => fc.classList.toggle("open");
-</script>
-</body>
-</html>
+  .float-contact { position: fixed; right: 18px;
