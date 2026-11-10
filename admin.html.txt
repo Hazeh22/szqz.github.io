@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2328; padding: 24px; }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 8px; }
+  .hint { color: #6b7280; font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+  textarea { width: 100%; min-height: 220px; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-family: monospace; font-size: 13px; line-height: 1.6; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  button { border: none; cursor: pointer; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 600; }
+  .primary { background: #2563eb; color: #fff; }
+  .ghost { background: #fff; border: 1px solid #d1d5db; }
+  .danger { background: #fee2e2; color: #b91c1c; }
+  .status { font-size: 13px; color: #059669; margin-top: 10px; }
+  .preview { background: #fff; border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 13px; color: #374151; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="adminTitle">管理后台（仅自己可见）</h1>
+  <p class="hint" id="adminHint"></p>
+  <textarea id="input" placeholder="usa,美式牛仔夹克,Vintage Denim Jacket,120,89.99,https://a.jpg|https://b.jpg,美国海外仓现货,经典剪裁..."></textarea>
+  <div class="row">
+    <button class="primary" id="parseBtn">解析并保存</button>
+    <button class="ghost" id="exportBtn">导出 data.js 代码</button>
+    <button class="danger" id="clearBtn">清空本地数据</button>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="preview" id="preview"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+document.getElementById("adminTitle").textContent = t("adminTitle");
+document.getElementById("adminHint").textContent = t("adminHint");
+document.getElementById("parseBtn").textContent = t("adminParse");
+document.getElementById("exportBtn").textContent = t("adminExport");
+document.getElementById("clearBtn").textContent = t("adminClear");
+
+function parseRows(text) {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const list = [];
+  lines.forEach((line, i) => {
+    // 支持逗号或制表符分隔
+    const parts = line.split(/[,\t]/).map(s => s.trim());
+    if (parts.length < 5) return;
+    const [category, name, nameEn, quantity, price, images, info, detail] = parts;
+    list.push({
+      id: "p_" + Date.now() + "_" + i,
+      category: category || "other",
+      name: name || "",
+      nameEn: nameEn || name || "",
+      quantity: Number(quantity) || 0,
+      price: Number(price) || 0,
+      images: (images || "").split("|").map(s => s.trim()).filter(Boolean),
+      info: info || "",
+      infoEn: info || "",
+      detail: detail || "",
+      detailEn: detail || ""
+    });
+  });
+  return list;
+}
+
+document.getElementById("parseBtn").onclick = () => {
+  const list = parseRows(document.getElementById("input").value);
+  if (!list.length) { document.getElementById("status").textContent = "没有解析到有效行"; return; }
+  saveProducts(list);
+  document.getElementById("status").textContent = t("adminSaved") + "（" + list.length + " 条）";
+  document.getElementById("preview").textContent = JSON.stringify(list.slice(0, 3), null, 2);
+};
+
+document.getElementById("exportBtn").onclick = () => {
+  const list = getProducts();
+  const code = "const DEFAULT_PRODUCTS = " + JSON.stringify(list, null, 2) + ";";
+  navigator.clipboard.writeText(code).then(() => {
+    document.getElementById("status").textContent = t("adminExported");
+  }).catch(() => {
+    document.getElementById("preview").textContent = code;
+    document.getElementById("status").textContent = "复制失败，请从下方预览区手动复制";
+  });
+};
+
+document.getElementById("clearBtn").onclick = () => {
+  if (confirm("确定清空本地产品数据？")) {
+    clearProducts();
+    document.getElementById("status").textContent = "已清空，刷新页面恢复默认数据";
+  }
+};
+</script>
+</body>
+</html>
