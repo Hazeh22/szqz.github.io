@@ -36,4 +36,100 @@
   .card .state { background: #fff1ea; color: #b8430f; border-radius: 6px; padding: 1px 7px; font-weight: 700; font-size: 11px; }
   .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 60px 0; }
 
-  .float-contact { position: fixed; right: 18px;
+  .float-contact { position: fixed; right: 18px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  .float-contact .items { display: none; flex-direction: column; gap: 10px; }
+  .float-contact.open .items { display: flex; }
+  .float-contact a, .float-contact button { display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #fff; border-radius: 999px; padding: 11px 16px; font-size: 13px; font-weight: 700; box-shadow: 0 8px 24px rgba(17,24,39,.16); color: var(--ink); }
+  .float-contact .wx { background: #07c160; color: #fff; }
+  .float-contact .tel { background: var(--brand); color: #fff; }
+  .float-contact .toggle { width: 52px; height: 52px; justify-content: center; padding: 0; border-radius: 50%; background: linear-gradient(135deg,#ff5a1f,#ffb020); color: #fff; font-size: 22px; box-shadow: 0 10px 26px rgba(255,90,31,.35); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-in">
+    <a class="back" href="index.html" id="backBtn">← 返回首页</a>
+    <button class="lang-btn" id="langBtn">EN</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <h1 id="pageTitle">产品列表</h1>
+    <div class="filters" id="filters"></div>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div class="float-contact" id="floatContact">
+  <div class="items">
+    <a class="wx" href="weixin://">💬 <span id="fcWechat">微信：2222222222</span></a>
+    <a class="tel" href="tel:3333333333">📞 <span id="fcPhone">电话：3333333333</span></a>
+  </div>
+  <button class="toggle" id="fcToggle">💬</button>
+</div>
+
+<script src="data.js"></script>
+<script>
+const cat = getParam("cat") || "all";
+const products = getProducts();
+renderLangBtn(document.getElementById("langBtn"));
+
+const CATS = ["all","usa","fba","canada","germany","uk","other"];
+let active = "all";
+
+function applyLang() {
+  const L = I18N[getLang()];
+  document.getElementById("backBtn").textContent = "← " + L.back;
+  document.getElementById("fcWechat").textContent = L.wechat;
+  document.getElementById("fcPhone").textContent = L.phone;
+  document.getElementById("pageTitle").textContent = cat === "all" ? L.navProducts : categoryLabel(cat);
+  document.title = document.getElementById("pageTitle").textContent;
+  renderFilters();
+  render();
+}
+
+function renderFilters() {
+  const L = I18N[getLang()];
+  const el = document.getElementById("filters");
+  el.innerHTML = CATS.map(c =>
+    `<button class="chip ${active===c?'active':''}" data-c="${c}">${c==='all'?L.all:categoryLabel(c)}</button>`
+  ).join("");
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => { active = b.dataset.c; renderFilters(); render(); });
+}
+
+function render() {
+  const L = I18N[getLang()];
+  let list = products;
+  if (cat !== "all") list = list.filter(p => p.category === cat);
+  if (active !== "all") list = list.filter(p => p.category === active);
+  document.getElementById("count").textContent = list.length + " " + (getLang()==='zh'?'件商品':'products');
+
+  if (!list.length) {
+    document.getElementById("grid").innerHTML = `<div class="empty">${L.noProducts}</div>`;
+    return;
+  }
+  document.getElementById("grid").innerHTML = list.map(p => `
+    <div class="card" onclick="location.href='detail.html?id=${p.id}'">
+      <img src="${p.images[0]}" alt="${getLang()==='zh'?p.name:p.nameEn}" loading="lazy">
+      <div class="body">
+        <div class="name">${getLang()==='zh'?p.name:p.nameEn}</div>
+        <div class="price">${formatPrice(p.price)}</div>
+        <div class="meta">
+          ${p.state ? `<span class="state">${p.state}</span>` : ""}
+          <span>${L.quantity}：${p.quantity}</span>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+if (CATS.includes(cat)) active = cat;
+applyLang();
+
+const fc = document.getElementById("floatContact");
+document.getElementById("fcToggle").onclick = () => fc.classList.toggle("open");
+</script>
+</body>
+</html>
