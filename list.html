@@ -71,6 +71,7 @@
     <h1 id="pageTitle">产品列表</h1>
     <p class="desc" id="pageDesc"></p>
     <div class="filters" id="filters"></div>
+    <div class="filters" id="stateFilters" style="margin-top:0;"></div>
     <div class="count" id="count"></div>
   </div>
   <div class="grid" id="grid"></div>
@@ -92,6 +93,16 @@ renderLangBtn(document.getElementById("langBtn"));
 
 const CATS = ["all","usa","fba","canada","germany","uk","other"];
 let active = "all";
+let activeState = "";
+
+// 从当前分类的产品里提取州简称（去重、排序）
+function getStates() {
+  let base = products;
+  if (cat !== "all") base = base.filter(p => p.category === cat);
+  if (active !== "all") base = base.filter(p => p.category === active);
+  const set = new Set(base.map(p => p.state).filter(Boolean));
+  return [...set].sort();
+}
 
 function applyLang() {
   const L = I18N[getLang()];
@@ -102,6 +113,7 @@ function applyLang() {
   document.getElementById("pageDesc").textContent = getLang()==='zh' ? "现货库存，支持筛选与查看详情" : "In-stock items, filter and view details";
   document.title = document.getElementById("pageTitle").textContent;
   renderFilters();
+  renderStateFilters();
   render();
 }
 
@@ -111,7 +123,29 @@ function renderFilters() {
   el.innerHTML = CATS.map(c =>
     `<button class="chip ${active===c?'active':''}" data-c="${c}">${c==='all'?L.all:categoryLabel(c)}</button>`
   ).join("");
-  el.querySelectorAll(".chip").forEach(b => b.onclick = () => { active = b.dataset.c; renderFilters(); render(); });
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    active = b.dataset.c;
+    activeState = "";          // 切换品类时重置州筛选
+    renderFilters();
+    renderStateFilters();
+    render();
+  });
+}
+
+function renderStateFilters() {
+  const el = document.getElementById("stateFilters");
+  const states = getStates();
+  if (!states.length) { el.innerHTML = ""; return; }
+  const label = getLang()==='zh' ? "州筛选：" : "State: ";
+  el.innerHTML =
+    `<span style="font-size:13px;color:var(--muted);align-self:center;margin-right:2px;">${label}</span>` +
+    `<button class="chip ${activeState===''?'active':''}" data-s="">${getLang()==='zh'?'全部州':'All states'}</button>` +
+    states.map(s => `<button class="chip ${activeState===s?'active':''}" data-s="${s}">${s}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    activeState = b.dataset.s;
+    renderStateFilters();
+    render();
+  });
 }
 
 function render() {
@@ -119,6 +153,8 @@ function render() {
   let list = products;
   if (cat !== "all") list = list.filter(p => p.category === cat);
   if (active !== "all") list = list.filter(p => p.category === active);
+  if (activeState) list = list.filter(p => p.state === activeState);
+
   document.getElementById("count").textContent = list.length + " " + (getLang()==='zh'?'件商品':'products');
 
   if (!list.length) {
