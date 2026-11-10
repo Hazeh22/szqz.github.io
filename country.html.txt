@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品列表</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #222; padding: 24px; }
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .back { text-decoration: none; color: #2563eb; font-size: 14px; }
+  h1 { font-size: 22px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .tab { padding: 7px 16px; border-radius: 999px; border: 1px solid #ddd; background: #fff; font-size: 13px; cursor: pointer; }
+  .tab.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .count { font-size: 13px; color: #666; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); display: flex; flex-direction: column; }
+  .card img { width: 100%; height: 160px; object-fit: cover; background: #eee; }
+  .card .info { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .card .name { font-weight: 600; font-size: 15px; }
+  .card .price { color: #e63946; font-weight: 700; font-size: 15px; }
+  .card .meta { font-size: 13px; color: #666; }
+  .card .addr { font-size: 12px; color: #888; line-height: 1.4; }
+  .empty { padding: 40px; text-align: center; color: #999; grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="index.html">← 返回国家</a>
+  <h1 id="pageTitle">商品列表</h1>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+
+<script>
+// ===== 商品数据：改这里 =====
+// country 只能是 美国/德国/英国/法国；category 只能是 服饰/饰品/家具/宠物用品
+const products = [
+  // ---- 美国 ----
+  { name: "美式复古牛仔夹克", image: "https://picsum.photos/seed/usa1/400/300", price: 89.99, address: "美国 · 加州 · 洛杉矶", quantity: 120, country: "美国", category: "服饰" },
+  { name: "纯银几何项链", image: "https://picsum.photos/seed/usa2/400/300", price: 45.00, address: "美国 · 纽约 · 曼哈顿", quantity: 60, country: "美国", category: "饰品" },
+  { name: "北欧风布艺沙发", image: "https://picsum.photos/seed/usa3/400/300", price: 599.00, address: "美国 · 德州 · 奥斯汀", quantity: 15, country: "美国", category: "家具" },
+  { name: "宠物自动喂食器", image: "https://picsum.photos/seed/usa4/400/300", price: 79.50, address: "美国 · 华盛顿州 · 西雅图", quantity: 200, country: "美国", category: "宠物用品" },
+
+  // ---- 德国 ----
+  { name: "德式简约风衣", image: "https://picsum.photos/seed/de1/400/300", price: 129.00, address: "德国 · 柏林 · 米特区", quantity: 40, country: "德国", category: "服饰" },
+  { name: "不锈钢手链", image: "https://picsum.photos/seed/de2/400/300", price: 32.00, address: "德国 · 慕尼黑 · 老城区", quantity: 85, country: "德国", category: "饰品" },
+  { name: "实木餐桌", image: "https://picsum.photos/seed/de3/400/300", price: 450.00, address: "德国 · 汉堡 · 港口区", quantity: 10, country: "德国", category: "家具" },
+  { name: "宠物猫爬架", image: "https://picsum.photos/seed/de4/400/300", price: 65.00, address: "德国 · 科隆 · 市中心", quantity: 55, country: "德国", category: "宠物用品" },
+
+  // ---- 英国 ----
+  { name: "英伦格纹毛衣", image: "https://picsum.photos/seed/uk1/400/300", price: 75.00, address: "英国 · 伦敦 · 苏活区", quantity: 90, country: "英国", category: "服饰" },
+  { name: "复古珍珠耳环", image: "https://picsum.photos/seed/uk2/400/300", price: 28.00, address: "英国 · 曼彻斯特 · 北区", quantity: 130, country: "英国", category: "饰品" },
+  { name: "英式书桌", image: "https://picsum.photos/seed/uk3/400/300", price: 320.00, address: "英国 · 爱丁堡 · 老城", quantity: 18, country: "英国", category: "家具" },
+  { name: "宠物狗窝", image: "https://picsum.photos/seed/uk4/400/300", price: 42.00, address: "英国 · 伯明翰 · 珠宝区", quantity: 75, country: "英国", category: "宠物用品" },
+
+  // ---- 法国 ----
+  { name: "法式碎花连衣裙", image: "https://picsum.photos/seed/fr1/400/300", price: 98.00, address: "法国 · 巴黎 · 玛黑区", quantity: 65, country: "法国", category: "服饰" },
+  { name: "金色细链手镯", image: "https://picsum.photos/seed/fr2/400/300", price: 55.00, address: "法国 · 里昂 · 老城区", quantity: 110, country: "法国", category: "饰品" },
+  { name: "法式复古单人椅", image: "https://picsum.photos/seed/fr3/400/300", price: 380.00, address: "法国 · 尼斯 · 英国人大道", quantity: 12, country: "法国", category: "家具" },
+  { name: "宠物猫玩具套装", image: "https://picsum.photos/seed/fr4/400/300", price: 25.00, address: "法国 · 马赛 · 老港", quantity: 180, country: "法国", category: "宠物用品" }
+];
+// =============================
+
+const params = new URLSearchParams(location.search);
+const country = params.get("country") || "美国";
+document.getElementById("pageTitle").textContent = country + " · 商品列表";
+document.title = country + " · 商品列表";
+
+const categories = ["全部", "服饰", "饰品", "家具", "宠物用品"];
+const tabsEl = document.getElementById("tabs");
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+let activeCat = "全部";
+
+function renderTabs() {
+  tabsEl.innerHTML = categories.map(c =>
+    `<button class="tab ${c === activeCat ? "active" : ""}" data-cat="${c}">${c}</button>`
+  ).join("");
+  tabsEl.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCat = btn.dataset.cat;
+      renderTabs();
+      render();
+    });
+  });
+}
+
+function render() {
+  const list = products.filter(p =>
+    p.country === country && (activeCat === "全部" || p.category === activeCat)
+  );
+  countEl.textContent = `共 ${list.length} 件商品`;
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty">该品类暂无商品</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(p => `
+    <div class="card">
+      <img src="${p.image}" alt="${p.name}" loading="lazy">
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="price">¥${p.price.toFixed(2)}</div>
+        <div class="meta">数量：${p.quantity}</div>
+        <div class="meta">品类：${p.category}</div>
+        <div class="addr">地址：${p.address}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+renderTabs();
+render();
+</script>
+
+</body>
+</html>
