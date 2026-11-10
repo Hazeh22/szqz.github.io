@@ -1,68 +1,46 @@
-# 货盘展示网站（szqz.github.io）
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品展示 - 按国家</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #222; padding: 32px 24px; }
+  h1 { font-size: 24px; margin-bottom: 6px; }
+  .sub { color: #777; font-size: 14px; margin-bottom: 28px; }
+  .countries { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .country-card { display: block; background: #fff; border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 8px rgba(0,0,0,.07); transition: transform .15s, box-shadow .15s; }
+  .country-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+  .country-card img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
+  .country-card .body { padding: 16px 18px; }
+  .country-card .name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .country-card .desc { font-size: 13px; color: #777; }
+</style>
+</head>
+<body>
 
-跨境货盘批次目录，客户可按「国家/仓」和「品类」筛选，点进批次看详情、咨询。
+<h1>商品展示</h1>
+<p class="sub">选择国家，查看该国商品</p>
 
-> 纯展示，不交易不下单。
+<div class="countries">
+  <a class="country-card" href="country.html?country=美国">
+    <img src="https://picsum.photos/seed/usa/600/300" alt="美国">
+    <div class="body"><div class="name">美国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
+  </a>
+  <a class="country-card" href="country.html?country=德国">
+    <img src="https://picsum.photos/seed/germany/600/300" alt="德国">
+    <div class="body"><div class="name">德国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
+  </a>
+  <a class="country-card" href="country.html?country=英国">
+    <img src="https://picsum.photos/seed/uk/600/300" alt="英国">
+    <div class="body"><div class="name">英国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
+  </a>
+  <a class="country-card" href="country.html?country=法国">
+    <img src="https://picsum.photos/seed/france/600/300" alt="法国">
+    <div class="body"><div class="name">法国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
+  </a>
+</div>
 
-## 功能
-
-- 批次卡片列表（封面 / 批次号 / 国家 / 品类 / 件数）
-- 国家筛选：美国 · 英国 · 德国 · 法国
-- 品类筛选：服装 · 家具 · 家居 · 日用 · 装饰 · 配件
-- 两个维度可单独选，也可叠加（如「美国 + 服装」）
-- 批次详情页（多图 / 描述 / 复制微信咨询）
-- 移动端优先，微信里可直接打开
-
-## 目录结构
-
-szqz.github.io/
-├── index.html # 列表 + 筛选（首页）
-├── detail.html # 批次详情页
-├── config.js # 数据源地址（如有）
-└── README.md
-
-## 本地预览
-
-1. 下载仓库：`git clone https://github.com/Hazeh22/szqz.github.io.git`
-2. 进入文件夹，双击 `index.html` 用浏览器打开
-3. 按 F12 打开控制台，确认无报错、筛选正常
-
-## 部署（GitHub Pages）
-
-1. 把 `index.html.txt` 重命名为 `index.html`
-2. 推送到本仓库 `main` 分支
-3. 仓库 Settings → Pages → Source 选 `main` 分支 / 根目录
-4. 访问 https://hazeh22.github.io/szqz.github.io/ 查看
-5. 改完代码推送到 main 分支，GitHub Pages 会自动重新部署（约 1 分钟）
-
-## 数据源
-
-批次数据存在 `config.js`（或后续接 Supabase / 凡科）。
-字段示例：
-
-batchNo: "US-2026-001",
-country: "美国",
-warehouse: "洛杉矶仓",
-categories: ["服装", "家居"],
-totalQty: 1200,
-cover: "图片地址",
-images: ["图1", "图2"],
-desc: "整批清货，混装，服装占比60%",
-status: "在售"
-
-## 筛选逻辑
-
-- 只选国家：列出该国所有批次
-- 只选品类：跨国家列出该品类
-- 国家 + 品类叠加：取交集
-
-## 注意事项
-
-- 文件名必须是 `index.html`，不能是 `.txt`
-- 访问走 HTTPS，HTTP 会被浏览器拦截
-- 图片建议压到 200KB 以内，加载更快
-- 国内微信打开 GitHub Pages 偶有慢，正式发客户建议套 Cloudflare 或迁国内托管
-
-## 更新记录
-
-- 2026-11-10 初始化：列表页 + 国家/品类筛选 + 详情页 + 咨询按钮
+</body>
+</html>
