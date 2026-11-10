@@ -3,44 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>商品展示 - 按国家</title>
+<title>跨境现货清仓</title>
 <style>
+  :root {
+    --brand: #ff5a1f; --brand2: #ffb020; --ink: #1f2328; --muted: #6b7280;
+    --bg: #fff8f3; --card: #ffffff; --radius: 16px;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #222; padding: 32px 24px; }
-  h1 { font-size: 24px; margin-bottom: 6px; }
-  .sub { color: #777; font-size: 14px; margin-bottom: 28px; }
-  .countries { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-  .country-card { display: block; background: #fff; border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 8px rgba(0,0,0,.07); transition: transform .15s, box-shadow .15s; }
-  .country-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-  .country-card img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
-  .country-card .body { padding: 16px 18px; }
-  .country-card .name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-  .country-card .desc { font-size: 13px; color: #777; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a { text-decoration: none; color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 18px; }
+
+  header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid #ffe3d3; }
+  .header-in { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { font-weight: 800; font-size: 18px; color: var(--brand); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .lang-btn, .nav-btn { border: 1px solid #ffd2bd; background: #fff; color: var(--brand); padding: 6px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; }
+  .lang-btn:hover, .nav-btn:hover { background: #fff1ea; }
+
+  .hero { padding: 34px 0 10px; text-align: center; }
+  .hero h1 { font-size: clamp(24px, 5vw, 38px); font-weight: 800; background: linear-gradient(90deg, #ff5a1f, #ffb020); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 12px; }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 760px; margin: 0 auto; word-break: break-all; }
+
+  .section-title { font-size: 20px; font-weight: 700; margin: 30px 0 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ""; width: 6px; height: 20px; border-radius: 3px; background: linear-gradient(180deg, #ff5a1f, #ffb020); }
+
+  /* 轮播 */
+  .carousel { position: relative; overflow: hidden; border-radius: var(--radius); background: #fff; box-shadow: 0 4px 18px rgba(255,90,31,.08); }
+  .track { display: flex; transition: transform .45s ease; }
+  .slide { min-width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px; }
+  @media (max-width: 560px) { .slide { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; } }
+  .slide .p-card { border: 1px solid #ffe6d8; border-radius: 12px; overflow: hidden; background: #fff; cursor: pointer; }
+  .slide .p-card img { width: 100%; height: 110px; object-fit: cover; display: block; background: #f3f4f6; }
+  .slide .p-card .pc-body { padding: 8px 10px; }
+  .slide .p-card .pc-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slide .p-card .pc-price { color: var(--brand); font-weight: 700; font-size: 13px; }
+  .carousel-dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0 14px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffd2bd; cursor: pointer; transition: all .2s; }
+  .dot.active { background: var(--brand); width: 20px; border-radius: 4px; }
+
+  /* 大按钮 */
+  .big-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 560px) { .big-grid { grid-template-columns: 1fr; } }
+  .big-btn { display: block; border-radius: var(--radius); padding: 26px 22px; color: #fff; font-size: 20px; font-weight: 800; text-align: center; box-shadow: 0 8px 22px rgba(0,0,0,.12); transition: transform .15s; }
+  .big-btn:hover { transform: translateY(-3px); }
+  .big-usa { background: linear-gradient(135deg, #ff5a1f, #ff8c42); }
+  .big-fba { background: linear-gradient(135deg, #2f6bff, #6a9bff); }
+
+  /* 小按钮 */
+  .small-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 720px) { .small-grid { grid-template-columns: repeat(2, 1fr); } }
+  .small-btn { display: block; background: #fff; border: 1px solid #ffe3d3; border-radius: 14px; padding: 18px 10px; text-align: center; font-weight: 700; font-size: 15px; color: var(--ink); transition: all .15s; }
+  .small-btn:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-2px); }
+  .small-btn .flag { font-size: 22px; display: block; margin-bottom: 6px; }
+
+  /* 悬浮联系 */
+  .float-contact { position: fixed; right: 16px; bottom: 18px; z-index: 90; display: flex; flex-direction: column; gap: 10px; }
+  .float-contact a, .float-contact button { display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #fff; border-radius: 999px; padding: 10px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,.15); color: var(--ink); }
+  .float-contact .wx { background: #07c160; color: #fff; }
+  .float-contact .tel { background: var(--brand); color: #fff; }
+  .float-contact .toggle { width: 48px; height: 48px; justify-content: center; padding: 0; border-radius: 50%; background: linear-gradient(135deg, #ff5a1f, #ffb020); color: #fff; font-size: 20px; }
+  .float-contact .items { display: none; flex-direction: column; gap: 10px; }
+  .float-contact.open .items { display: flex; }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 40px 0 80px; }
 </style>
 </head>
 <body>
 
-<h1>商品展示</h1>
-<p class="sub">选择国家，查看该国商品</p>
+<header>
+  <div class="wrap header-in">
+    <a class="logo" href="index.html" id="siteName">跨境现货清仓</a>
+    <div class="header-right">
+      <a class="nav-btn" href="list.html?cat=all" id="navProducts">产品展示</a>
+      <button class="lang-btn" id="langBtn">EN</button>
+    </div>
+  </div>
+</header>
 
-<div class="countries">
-  <a class="country-card" href="country.html?country=美国">
-    <img src="https://picsum.photos/seed/usa/600/300" alt="美国">
-    <div class="body"><div class="name">美国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
-  </a>
-  <a class="country-card" href="country.html?country=德国">
-    <img src="https://picsum.photos/seed/germany/600/300" alt="德国">
-    <div class="body"><div class="name">德国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
-  </a>
-  <a class="country-card" href="country.html?country=英国">
-    <img src="https://picsum.photos/seed/uk/600/300" alt="英国">
-    <div class="body"><div class="name">英国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
-  </a>
-  <a class="country-card" href="country.html?country=法国">
-    <img src="https://picsum.photos/seed/france/600/300" alt="法国">
-    <div class="body"><div class="name">法国</div><div class="desc">服饰 · 饰品 · 家具 · 宠物用品</div></div>
-  </a>
+<main class="wrap">
+  <section class="hero">
+    <h1 id="heroTitle">跨境现货清仓</h1>
+    <p id="heroDesc">1111111111111111111111111111111111111111111111111</p>
+  </section>
+
+  <h2 class="section-title" id="featuredTitle">新上架推荐</h2>
+  <div class="carousel">
+    <div class="track" id="track"></div>
+    <div class="carousel-dots" id="dots"></div>
+  </div>
+
+  <h2 class="section-title" id="bigTitle">商品分类</h2>
+  <div class="big-grid" style="margin-bottom:14px;">
+    <a class="big-btn big-usa" href="list.html?cat=usa" id="btnUsa">美国海外仓现货</a>
+    <a class="big-btn big-fba" href="list.html?cat=fba" id="btnFba">FBA包邮移除现货</a>
+  </div>
+  <div class="small-grid">
+    <a class="small-btn" href="list.html?cat=canada"><span class="flag">🇨🇦</span><span id="btnCa">加拿大</span></a>
+    <a class="small-btn" href="list.html?cat=germany"><span class="flag">🇩🇪</span><span id="btnDe">德国</span></a>
+    <a class="small-btn" href="list.html?cat=uk"><span class="flag">🇬🇧</span><span id="btnUk">英国</span></a>
+    <a class="small-btn" href="list.html?cat=other"><span class="flag">🌍</span><span id="btnOther">其他国家</span></a>
+  </div>
+
+  <footer id="footer">跨境现货清仓 · 咨询微信 2222222222 · 电话 3333333333</footer>
+</main>
+
+<div class="float-contact" id="floatContact">
+  <div class="items">
+    <a class="wx" href="weixin://">💬 <span id="fcWechat">微信：2222222222</span></a>
+    <a class="tel" href="tel:3333333333">📞 <span id="fcPhone">电话：3333333333</span></a>
+  </div>
+  <button class="toggle" id="fcToggle">💬</button>
 </div>
 
+<script src="data.js"></script>
+<script>
+const products = getProducts();
+renderLangBtn(document.getElementById("langBtn"));
+
+function applyLang() {
+  const L = I18N[getLang()];
+  document.getElementById("siteName").textContent = L.siteName;
+  document.getElementById("heroTitle").textContent = L.siteName;
+  document.getElementById("heroDesc").textContent = L.siteDesc;
+  document.getElementById("navProducts").textContent = L.navProducts;
+  document.getElementById("featuredTitle").textContent = L.featured;
+  document.getElementById("bigTitle").textContent = L.categories;
+  document.getElementById("btnUsa").textContent = L.usa;
+  document.getElementById("btnFba").textContent = L.fba;
+  document.getElementById("btnCa").textContent = L.canada;
+  document.getElementById("btnDe").textContent = L.germany;
+  document.getElementById("btnUk").textContent = L.uk;
+  document.getElementById("btnOther").textContent = L.other;
+  document.getElementById("fcWechat").textContent = L.wechat;
+  document.getElementById("fcPhone").textContent = L.phone;
+  document.getElementById("footer").textContent = L.siteName + " · " + L.wechat + " · " + L.phone;
+  document.title = L.siteName;
+}
+applyLang();
+
+// 新上架产品轮播：取最新 10 个产品，每页 4 个，共 5 页
+const latest = products.slice(-10).reverse();
+const pages = [];
+for (let i = 0; i < latest.length; i += 4) pages.push(latest.slice(i, i + 4));
+while (pages.length < 5) pages.push([]);
+const track = document.getElementById("track");
+const dotsEl = document.getElementById("dots");
+let cur = 0;
+
+function renderSlides() {
+  track.innerHTML = pages.map(page => `
+    <div class="slide">
+      ${page.map(p => `
+        <div class="p-card" onclick="location.href='detail.html?id=${p.id}'">
+          <img src="${p.images[0]}" alt="${getLang()==='zh'?p.name:p.nameEn}">
+          <div class="pc-body">
+            <div class="pc-name">${getLang()==='zh'?p.name:p.nameEn}</div>
+            <div class="pc-price">${formatPrice(p.price)}</div>
+          </div>
+        </div>
+      `).join("") || ""}
+    </div>
+  `).join("");
+  dotsEl.innerHTML = pages.map((_, i) => `<span class="dot ${i===cur?'active':''}" data-i="${i}"></span>`).join("");
+  dotsEl.querySelectorAll(".dot").forEach(d => d.onclick = () => go(+d.dataset.i));
+  go(cur);
+}
+function go(i) {
+  cur = Math.max(0, Math.min(i, pages.length - 1));
+  track.style.transform = `translateX(-${cur * 100}%)`;
+  dotsEl.querySelectorAll(".dot").forEach((d, idx) => d.classList.toggle("active", idx === cur));
+}
+renderSlides();
+setInterval(() => go((cur + 1) % pages.length), 4000);
+
+// 悬浮联系展开
+const fc = document.getElementById("floatContact");
+document.getElementById("fcToggle").onclick = () => fc.classList.toggle("open");
+</script>
 </body>
 </html>
