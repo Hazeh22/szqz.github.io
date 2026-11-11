@@ -4,93 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>管理后台</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f4f5f7; color: #1f2328; padding: 24px; }
-  .wrap { max-width: 1000px; margin: 0 auto; }
-  h1 { font-size: 22px; margin-bottom: 8px; }
-  .hint { color: #6b7280; font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
-  textarea { width: 100%; min-height: 220px; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-family: monospace; font-size: 13px; line-height: 1.6; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f8fafc; color: #0f172a; padding: 28px 20px; line-height: 1.6; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 6px; }
+  .hint { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  input[type=file] { display: block; font-size: 14px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
   button { border: none; cursor: pointer; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 600; }
-  .primary { background: #2563eb; color: #fff; }
-  .ghost { background: #fff; border: 1px solid #d1d5db; }
-  .danger { background: #fee2e2; color: #b91c1c; }
+  .primary { background: #0f172a; color: #fff; }
+  .ghost { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; }
   .status { font-size: 13px; color: #059669; margin-top: 10px; }
-  .preview { background: #fff; border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 13px; color: #374151; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow: auto; }
+  .preview { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-top: 14px; font-size: 12px; font-family: monospace; white-space: pre-wrap; word-break: break-all; max-height: 320px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+  th, td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+  th { background: #f1f5f9; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1 id="adminTitle">管理后台（仅自己可见）</h1>
-  <p class="hint" id="adminHint"></p>
-  <textarea id="input" placeholder="usa,美式牛仔夹克,Vintage Denim Jacket,120,89.99,https://a.jpg|https://b.jpg,美国海外仓现货,经典剪裁..."></textarea>
-  <div class="row">
-    <button class="primary" id="parseBtn">解析并保存</button>
-    <button class="ghost" id="exportBtn">导出 data.js 代码</button>
-    <button class="danger" id="clearBtn">清空本地数据</button>
+  <h1>管理后台（仅自己使用）</h1>
+  <p class="hint">
+    上传 Excel/CSV，第一行列名必须是：<b>分类、州简称、邮编、数量、价格、图片、描述</b>。<br>
+    分类可填中文：美国海外仓现货 / FBA包邮移除现货 / 加拿大 / 德国 / 英国 / 其他国家。<br>
+    图片多张用 <code>|</code> 隔开；州简称仅美国仓需要填（如 NY、CA）。
+  </p>
+
+  <div class="card">
+    <label>选择表格文件（.xlsx / .xls / .csv）</label>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+    <div class="row">
+      <button class="primary" id="parseBtn">解析并预览</button>
+      <button class="ghost" id="exportBtn">生成 data.js 代码</button>
+      <button class="ghost" id="clearBtn">清空</button>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="preview" id="preview" style="display:none;"></div>
+    <div id="tableWrap"></div>
   </div>
-  <div class="status" id="status"></div>
-  <div class="preview" id="preview"></div>
 </div>
 
-<script src="data.js"></script>
 <script>
-document.getElementById("adminTitle").textContent = t("adminTitle");
-document.getElementById("adminHint").textContent = t("adminHint");
-document.getElementById("parseBtn").textContent = t("adminParse");
-document.getElementById("exportBtn").textContent = t("adminExport");
-document.getElementById("clearBtn").textContent = t("adminClear");
+let parsedProducts = [];
 
-function parseRows(text) {
-  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+const CATEGORY_MAP = {
+  "美国海外仓现货": "usa",
+  "美国海外仓": "usa",
+  "美国": "usa",
+  "FBA包邮移除现货": "fba",
+  "FBA包邮移除": "fba",
+  "FBA": "fba",
+  "加拿大": "canada",
+  "德国": "germany",
+  "英国": "uk",
+  "其他国家": "other",
+  "其他": "other"
+};
+
+function norm(s) { return String(s == null ? "" : s).trim(); }
+
+function getField(row, names) {
+  for (const n of names) {
+    if (row[n] !== undefined && norm(row[n]) !== "") return row[n];
+  }
+  return "";
+}
+
+function parseRows(rows) {
   const list = [];
-  lines.forEach((line, i) => {
-    // 支持逗号或制表符分隔
-    const parts = line.split(/[,\t]/).map(s => s.trim());
-    if (parts.length < 5) return;
-    const [category, name, nameEn, quantity, price, images, info, detail] = parts;
+  rows.forEach((row, i) => {
+    const catRaw = norm(getField(row, ["分类", "category", "Category"]));
+    const cat = CATEGORY_MAP[catRaw] || "";
+    if (!cat) return;
+
+    const state = norm(getField(row, ["州简称", "州", "state", "State"]));
+    const zip = norm(getField(row, ["邮编", "zip", "Zip", "ZIP"]));
+    const quantity = Number(getField(row, ["数量", "quantity", "Quantity"])) || 0;
+    const price = Number(getField(row, ["价格", "price", "Price"])) || 0;
+    const imagesRaw = norm(getField(row, ["图片", "图片链接", "images", "Images"]));
+    const desc = norm(getField(row, ["描述", "商品描述", "description", "Description"]));
+    const name = norm(getField(row, ["名称", "商品名称", "name", "Name"])) || (desc ? desc.slice(0, 30) : "未命名产品");
+
+    const images = imagesRaw.split("|").map(s => s.trim()).filter(Boolean);
+
     list.push({
       id: "p_" + Date.now() + "_" + i,
-      category: category || "other",
-      name: name || "",
-      nameEn: nameEn || name || "",
-      quantity: Number(quantity) || 0,
-      price: Number(price) || 0,
-      images: (images || "").split("|").map(s => s.trim()).filter(Boolean),
-      info: info || "",
-      infoEn: info || "",
-      detail: detail || "",
-      detailEn: detail || ""
+      category: cat,
+      state: state,
+      zip: zip,
+      name: name,
+      nameEn: name,
+      quantity: quantity,
+      price: price,
+      images: images,
+      info: (state ? state + " " : "") + (zip ? zip + " · " : "") + "现货",
+      infoEn: (state ? state + " " : "") + (zip ? zip + " · " : "") + "In stock",
+      detail: desc,
+      detailEn: desc
     });
   });
   return list;
 }
 
-document.getElementById("parseBtn").onclick = () => {
-  const list = parseRows(document.getElementById("input").value);
-  if (!list.length) { document.getElementById("status").textContent = "没有解析到有效行"; return; }
-  saveProducts(list);
-  document.getElementById("status").textContent = t("adminSaved") + "（" + list.length + " 条）";
-  document.getElementById("preview").textContent = JSON.stringify(list.slice(0, 3), null, 2);
+document.getElementById("parseBtn").onclick = async () => {
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) { document.getElementById("status").textContent = "请先选择文件"; return; }
+
+  const data = await file.arrayBuffer();
+  const wb = XLSX.read(data, { type: "array" });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+  parsedProducts = parseRows(rows);
+  document.getElementById("status").textContent = "解析到 " + parsedProducts.length + " 条产品";
+
+  const wrap = document.getElementById("tableWrap");
+  if (!parsedProducts.length) { wrap.innerHTML = ""; return; }
+  wrap.innerHTML = `<table><thead><tr><th>分类</th><th>州</th><th>邮编</th><th>数量</th><th>价格</th><th>图片数</th><th>描述</th></tr></thead><tbody>` +
+    parsedProducts.slice(0, 10).map(p => `<tr>
+      <td>${p.category}</td><td>${p.state}</td><td>${p.zip}</td>
+      <td>${p.quantity}</td><td>$${p.price.toFixed(2)}</td>
+      <td>${p.images.length}</td><td>${p.detail.slice(0, 30)}${p.detail.length > 30 ? "…" : ""}</td>
+    </tr>`).join("") + `</tbody></table>`;
 };
 
 document.getElementById("exportBtn").onclick = () => {
-  const list = getProducts();
-  const code = "const DEFAULT_PRODUCTS = " + JSON.stringify(list, null, 2) + ";";
+  if (!parsedProducts.length) { document.getElementById("status").textContent = "请先解析表格"; return; }
+  const code = "const DEFAULT_PRODUCTS = " + JSON.stringify(parsedProducts, null, 2) + ";";
   navigator.clipboard.writeText(code).then(() => {
-    document.getElementById("status").textContent = t("adminExported");
+    document.getElementById("status").textContent = "已复制到剪贴板，请粘贴覆盖 data.js 中的 DEFAULT_PRODUCTS";
+    const pv = document.getElementById("preview");
+    pv.style.display = "block";
+    pv.textContent = code.slice(0, 2000) + (code.length > 2000 ? "\n…（已复制完整代码）" : "");
   }).catch(() => {
-    document.getElementById("preview").textContent = code;
-    document.getElementById("status").textContent = "复制失败，请从下方预览区手动复制";
+    const pv = document.getElementById("preview");
+    pv.style.display = "block";
+    pv.textContent = code;
+    document.getElementById("status").textContent = "复制失败，请从下方手动复制";
   });
 };
 
 document.getElementById("clearBtn").onclick = () => {
-  if (confirm("确定清空本地产品数据？")) {
-    clearProducts();
-    document.getElementById("status").textContent = "已清空，刷新页面恢复默认数据";
-  }
+  parsedProducts = [];
+  document.getElementById("status").textContent = "";
+  document.getElementById("tableWrap").innerHTML = "";
+  document.getElementById("preview").style.display = "none";
+  document.getElementById("fileInput").value = "";
 };
 </script>
 </body>
