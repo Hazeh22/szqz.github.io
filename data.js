@@ -6,63 +6,57 @@
 // ============================================================
 const DEFAULT_PRODUCTS = [
   {
-    id: "p1", category: "usa", state: "CA", zip: "90001",
-    name: "美式复古牛仔夹克", nameEn: "Vintage Denim Jacket",
-    quantity: 120, price: 89.99,
-    images: ["https://picsum.photos/seed/usa1a/900/700", "https://picsum.photos/seed/usa1b/900/700"],
-    info: "CA 90001 · 现货", infoEn: "CA 90001 · In stock",
-    detail: "经典美式复古剪裁，100% 纯棉牛仔面料。", detailEn: "Classic American vintage cut."
+    "id": "p_1794390495307_0",
+    "category": "usa",
+    "state": "ny",
+    "zip": "11791",
+    "name": "共十个品，都是宠物用品，咨询详细信息",
+    "nameEn": "共十个品，都是宠物用品，咨询详细信息",
+    "quantity": 322,
+    "price": 3,
+    "images": [
+      "https://beeimg.us.ci/temp/6af4201a0aad5.jpeg"
+    ],
+    "info": "ny 11791 · 现货",
+    "infoEn": "ny 11791 · In stock",
+    "detail": "共十个品，都是宠物用品，咨询详细信息",
+    "detailEn": "共十个品，都是宠物用品，咨询详细信息"
   },
   {
-    id: "p2", category: "usa", state: "NY", zip: "10001",
-    name: "纯银几何项链", nameEn: "Sterling Silver Necklace",
-    quantity: 60, price: 45.00,
-    images: ["https://picsum.photos/seed/usa2a/900/700"],
-    info: "NY 10001 · 现货", infoEn: "NY 10001 · In stock",
-    detail: "925 纯银材质，简约百搭。", detailEn: "925 sterling silver."
+    "id": "p_1794390495307_1",
+    "category": "usa",
+    "state": "PA",
+    "zip": "18064",
+    "name": "工具套装，",
+    "nameEn": "工具套装，",
+    "quantity": 550,
+    "price": 5,
+    "images": [
+      "https://beeimg.us.ci/temp/6af4385341a7f.png"
+    ],
+    "info": "PA 18064 · 现货",
+    "infoEn": "PA 18064 · In stock",
+    "detail": "工具套装，",
+    "detailEn": "工具套装，"
   },
   {
-    id: "p3", category: "fba", state: "", zip: "",
-    name: "宠物自动喂食器", nameEn: "Automatic Pet Feeder",
-    quantity: 200, price: 79.50,
-    images: ["https://picsum.photos/seed/fba1a/900/700"],
-    info: "FBA 现货", infoEn: "FBA In stock",
-    detail: "定时定量喂食，容量 4L。", detailEn: "Scheduled feeding, 4L capacity."
-  },
-  {
-    id: "p4", category: "canada", state: "", zip: "",
-    name: "加拿大鹅绒羽绒服", nameEn: "Canadian Down Jacket",
-    quantity: 40, price: 219.00,
-    images: ["https://picsum.photos/seed/ca1a/900/700"],
-    info: "加拿大现货", infoEn: "Canada In stock",
-    detail: "90% 白鹅绒填充。", detailEn: "90% white goose down."
-  },
-  {
-    id: "p5", category: "germany", state: "", zip: "",
-    name: "德式简约风衣", nameEn: "German Trench Coat",
-    quantity: 40, price: 129.00,
-    images: ["https://picsum.photos/seed/de1a/900/700"],
-    info: "德国现货", infoEn: "Germany In stock",
-    detail: "德式简约剪裁。", detailEn: "German minimalist cut."
-  },
-  {
-    id: "p6", category: "uk", state: "", zip: "",
-    name: "英伦格纹毛衣", nameEn: "British Check Sweater",
-    quantity: 90, price: 75.00,
-    images: ["https://picsum.photos/seed/uk1a/900/700"],
-    info: "英国现货", infoEn: "UK In stock",
-    detail: "经典英伦格纹。", detailEn: "Classic British check."
-  },
-  {
-    id: "p7", category: "other", state: "", zip: "",
-    name: "法式碎花连衣裙", nameEn: "French Floral Dress",
-    quantity: 65, price: 98.00,
-    images: ["https://picsum.photos/seed/fr1a/900/700"],
-    info: "其他国家现货", infoEn: "Other regions In stock",
-    detail: "法式碎花设计。", detailEn: "French floral design."
+    "id": "p_1794390495307_2",
+    "category": "usa",
+    "state": "CA",
+    "zip": "92376",
+    "name": "工具套装，",
+    "nameEn": "工具套装，",
+    "quantity": 343,
+    "price": 5,
+    "images": [
+      "https://beeimg.us.ci/temp/6af4385341a7f.png"
+    ],
+    "info": "CA 92376 · 现货",
+    "infoEn": "CA 92376 · In stock",
+    "detail": "工具套装，",
+    "detailEn": "工具套装，"
   }
 ];
-
 const I18N = {
   zh: {
     siteName: "跨境现货清仓",
