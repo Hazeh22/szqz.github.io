@@ -53,8 +53,8 @@ const DEFAULT_PRODUCTS = [
     ],
     "info": "CA 92376 · 现货",
     "infoEn": "CA 92376 · In stock",
-    "detail": "工具套装，",
-    "detailEn": "工具套装，"
+    "detail": "工具套装",
+    "detailEn": "工具套装"
   }
 ];
 const I18N = {
