@@ -6,13 +6,8 @@
 <title>产品列表</title>
 <style>
   :root {
-    --ink: #0f172a;
-    --muted: #64748b;
-    --line: #e2e8f0;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --accent-soft: #f1f5f9;
-    --radius: 16px;
+    --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --bg: #f8fafc;
+    --card: #ffffff; --accent-soft: #f1f5f9; --radius: 16px;
     --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
     --shadow-md: 0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
   }
@@ -22,9 +17,9 @@
   .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
   header { position: sticky; top: 0; z-index: 50; background: rgba(248,250,252,.8); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
   .header-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-  .back { font-size: 14px; color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; transition: background .15s; }
+  .back { font-size: 14px; color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; }
   .back:hover { background: var(--accent-soft); }
-  .lang-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .lang-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
   .lang-btn:hover { background: var(--accent-soft); }
 
   .page-head { padding: 48px 0 8px; }
@@ -46,6 +41,7 @@
   .card .price { color: var(--ink); font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
   .card .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .card .state { background: var(--accent-soft); color: var(--ink); border-radius: 6px; padding: 1px 7px; font-weight: 600; font-size: 11px; }
+  .card .zip { background: #f1f5f9; color: #475569; border-radius: 6px; padding: 1px 7px; font-weight: 600; font-size: 11px; }
   .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 80px 0; }
 
   .float-contact { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
@@ -95,7 +91,6 @@ const CATS = ["all","usa","fba","canada","germany","uk","other"];
 let active = "all";
 let activeState = "";
 
-// 当前品类筛选下可用的州（仅当结果里有 state 字段时显示）
 function getStates() {
   let base = products;
   if (active !== "all") {
@@ -154,7 +149,6 @@ function renderStateFilters() {
 function render() {
   const L = I18N[getLang()];
   let list = products;
-  // 页面内筛选按钮优先；没点过按钮时才用网址里的 cat 作为初始分类
   if (active !== "all") {
     list = list.filter(p => p.category === active);
   } else if (cat !== "all") {
@@ -170,12 +164,13 @@ function render() {
   }
   document.getElementById("grid").innerHTML = list.map(p => `
     <div class="card" onclick="location.href='detail.html?id=${p.id}'">
-      <img src="${p.images[0]}" alt="${getLang()==='zh'?p.name:p.nameEn}" loading="lazy">
+      <img src="${p.images[0] || ''}" alt="${getLang()==='zh'?p.name:p.nameEn}" loading="lazy">
       <div class="body">
         <div class="name">${getLang()==='zh'?p.name:p.nameEn}</div>
         <div class="price">${formatPrice(p.price)}</div>
         <div class="meta">
           ${p.state ? `<span class="state">${p.state}</span>` : ""}
+          ${p.zip ? `<span class="zip">${p.zip}</span>` : ""}
           <span>${L.quantity}：${p.quantity}</span>
         </div>
       </div>
