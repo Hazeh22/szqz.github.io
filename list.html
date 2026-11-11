@@ -95,11 +95,14 @@ const CATS = ["all","usa","fba","canada","germany","uk","other"];
 let active = "all";
 let activeState = "";
 
-// 从当前分类的产品里提取州简称（去重、排序）
+// 当前品类筛选下可用的州（仅当结果里有 state 字段时显示）
 function getStates() {
   let base = products;
-  if (cat !== "all") base = base.filter(p => p.category === cat);
-  if (active !== "all") base = base.filter(p => p.category === active);
+  if (active !== "all") {
+    base = base.filter(p => p.category === active);
+  } else if (cat !== "all") {
+    base = base.filter(p => p.category === cat);
+  }
   const set = new Set(base.map(p => p.state).filter(Boolean));
   return [...set].sort();
 }
@@ -125,7 +128,7 @@ function renderFilters() {
   ).join("");
   el.querySelectorAll(".chip").forEach(b => b.onclick = () => {
     active = b.dataset.c;
-    activeState = "";          // 切换品类时重置州筛选
+    activeState = "";
     renderFilters();
     renderStateFilters();
     render();
@@ -151,8 +154,12 @@ function renderStateFilters() {
 function render() {
   const L = I18N[getLang()];
   let list = products;
-  if (cat !== "all") list = list.filter(p => p.category === cat);
-  if (active !== "all") list = list.filter(p => p.category === active);
+  // 页面内筛选按钮优先；没点过按钮时才用网址里的 cat 作为初始分类
+  if (active !== "all") {
+    list = list.filter(p => p.category === active);
+  } else if (cat !== "all") {
+    list = list.filter(p => p.category === cat);
+  }
   if (activeState) list = list.filter(p => p.state === activeState);
 
   document.getElementById("count").textContent = list.length + " " + (getLang()==='zh'?'件商品':'products');
